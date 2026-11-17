@@ -18,41 +18,72 @@ const MAX_PLAYERS = 4;
 const players = {};
 
 const mapa = {
-  ancho: 1000,
-  alto: 700,
+  ancho: 1100,
+  alto: 800,
   paredes: [
-    { x: 0, y: 0, w: 1000, h: 20 },
-    { x: 0, y: 680, w: 1000, h: 20 },
-    { x: 0, y: 0, w: 20, h: 700 },
-    { x: 980, y: 0, w: 20, h: 700 },
-    { x: 100, y: 80, w: 300, h: 20 },
-    { x: 400, y: 80, w: 20, h: 100 },
-    { x: 400, y: 220, w: 20, h: 100 },
-    { x: 100, y: 300, w: 300, h: 20 },
-    { x: 600, y: 80, w: 300, h: 20 },
-    { x: 900, y: 80, w: 20, h: 100 },
-    { x: 900, y: 220, w: 20, h: 100 },
-    { x: 600, y: 300, w: 300, h: 20 },
-    { x: 100, y: 380, w: 300, h: 20 },
-    { x: 400, y: 380, w: 20, h: 100 },
-    { x: 400, y: 520, w: 20, h: 100 },
-    { x: 100, y: 620, w: 300, h: 20 },
-    { x: 420, y: 100, w: 20, h: 300 },
-    { x: 420, y: 440, w: 20, h: 200 },
+    // Perímetro
+    { x: 0, y: 0, w: 1100, h: 20, tipo: 'pared', color: '#555555' },
+    { x: 0, y: 780, w: 1100, h: 20, tipo: 'pared', color: '#555555' },
+    { x: 0, y: 0, w: 20, h: 800, tipo: 'pared', color: '#555555' },
+    { x: 1080, y: 0, w: 20, h: 800, tipo: 'pared', color: '#555555' },
+
+    // Oficina 1 (arriba izquierda)
+    { x: 100, y: 80, w: 350, h: 20, tipo: 'pared', color: '#555555' },
+    { x: 450, y: 80, w: 20, h: 120, tipo: 'pared', color: '#555555' },
+    { x: 450, y: 240, w: 20, h: 120, tipo: 'pared', color: '#555555' },
+    { x: 100, y: 360, w: 350, h: 20, tipo: 'pared', color: '#555555' },
+
+    // Oficina 2 (arriba derecha)
+    { x: 650, y: 80, w: 350, h: 20, tipo: 'pared', color: '#555555' },
+    { x: 1000, y: 80, w: 20, h: 120, tipo: 'pared', color: '#555555' },
+    { x: 1000, y: 240, w: 20, h: 120, tipo: 'pared', color: '#555555' },
+    { x: 650, y: 360, w: 350, h: 20, tipo: 'pared', color: '#555555' },
+
+    // Oficina 3 (abajo izquierda)
+    { x: 100, y: 440, w: 350, h: 20, tipo: 'pared', color: '#555555' },
+    { x: 450, y: 440, w: 20, h: 120, tipo: 'pared', color: '#555555' },
+    { x: 450, y: 600, w: 20, h: 120, tipo: 'pared', color: '#555555' },
+    { x: 100, y: 760, w: 350, h: 20, tipo: 'pared', color: '#555555' },
+
+    // Separador Sala de estar
+    { x: 470, y: 100, w: 20, h: 340, tipo: 'pared', color: '#555555' },
+    { x: 470, y: 500, w: 20, h: 200, tipo: 'pared', color: '#555555' },
+  ],
+  muebles: [
+    // Oficina 1 - escritorio, silla, planta
+    { x: 180, y: 180, w: 120, h: 60, tipo: 'escritorio', color: '#8d6e63' },
+    { x: 260, y: 180, w: 30, h: 50, tipo: 'silla', color: '#5d4037' },
+    { x: 330, y: 200, w: 25, h: 40, tipo: 'planta', color: '#4caf50' },
+
+    // Oficina 2 - escritorio, silla, estante
+    { x: 730, y: 180, w: 120, h: 60, tipo: 'escritorio', color: '#8d6e63' },
+    { x: 810, y: 180, w: 30, h: 50, tipo: 'silla', color: '#5d4037' },
+    { x: 900, y: 120, w: 40, h: 100, tipo: 'estante', color: '#795548' },
+
+    // Oficina 3 - mesa de reunion y sillas
+    { x: 180, y: 540, w: 140, h: 80, tipo: 'mesa', color: '#6d4c41' },
+    { x: 150, y: 560, w: 25, h: 40, tipo: 'silla', color: '#4e342e' },
+    { x: 290, y: 560, w: 25, h: 40, tipo: 'silla', color: '#4e342e' },
+
+    // Sala de estar - sofa, mesa, planta, TV
+    { x: 550, y: 500, w: 160, h: 40, tipo: 'sofa', color: '#37474f' },
+    { x: 630, y: 580, w: 80, h: 50, tipo: 'mesa', color: '#5d4037' },
+    { x: 800, y: 520, w: 30, h: 60, tipo: 'planta', color: '#66bb6a' },
+    { x: 900, y: 300, w: 100, h: 60, tipo: 'tv', color: '#263238' },
   ],
   zonas: [
-    { x: 250, y: 150, texto: "Oficina 1" },
-    { x: 750, y: 150, texto: "Oficina 2" },
-    { x: 250, y: 450, texto: "Oficina 3" },
-    { x: 700, y: 450, texto: "Sala de estar" },
+    { x: 270, y: 200, texto: "Oficina 1", color: "#ffab91" },
+    { x: 820, y: 200, texto: "Oficina 2", color: "#90caf9" },
+    { x: 270, y: 580, texto: "Oficina 3", color: "#a5d6a7" },
+    { x: 750, y: 450, texto: "Sala de estar", color: "#ce93d8" },
   ]
 };
 
 const posicionesIniciales = [
-  { x: 700, y: 450 },
-  { x: 200, y: 200 },
-  { x: 700, y: 200 },
-  { x: 200, y: 500 },
+  { x: 750, y: 450 }, // Sala de estar
+  { x: 220, y: 220 }, // Oficina 1
+  { x: 800, y: 220 }, // Oficina 2
+  { x: 220, y: 580 }, // Oficina 3
 ];
 
 io.on('connection', (socket) => {
@@ -68,7 +99,7 @@ io.on('connection', (socket) => {
     const name = data && data.name ? data.name.trim() : `Jugador ${playerCount + 1}`;
     const avatar = (data && typeof data.avatar === 'number') ? data.avatar : 0;
     const color = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
-    const pos = posicionesIniciales[playerCount] || { x: 500, y: 350 };
+    const pos = posicionesIniciales[playerCount] || { x: 500, y: 400 };
 
     players[socket.id] = {
       x: pos.x,

@@ -106,3 +106,17 @@
   object-fit: cover;
   pointer-events: none;
 }
+/* Fondo del body más oscuro para resaltar colores */
+body {
+  background: #1e272e;
+}
+
+/* Toque de color en el chat */
+#chat {
+  background: rgba(30, 39, 46, 0.9);
+}
+
+/* Animación leve del status */
+#status {
+  transition: all 0.3s ease;
+}
