@@ -12,6 +12,14 @@ let mundoAncho = 1000;
 let mundoAlto = 700;
 let jugadoresIniciales = {};
 let mapaInicial = null;
+let avatarSeleccionado = 0;
+
+const AVATAR_COLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#34495e'];
+
+function avatarDataUrl(color) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="${color}"/><circle cx="32" cy="24" r="10" fill="#fff"/><path d="M12 56 Q12 38 32 38 Q52 38 52 56" fill="#fff"/></svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+}
 
 const config = {
   type: Phaser.AUTO,
@@ -30,10 +38,20 @@ const config = {
   }
 };
 
-function preload() {}
+function preload() {
+  // No usamos load.image con data URIs porque Phaser no las soporta en preload
+  // Las cargaremos como texturas base64 en create()
+}
 
 function create() {
   scene = this;
+
+  // Cargar avatares como texturas base64 antes de crear los jugadores
+  AVATAR_COLORS.forEach((color, i) => {
+    const dataUrl = avatarDataUrl(color);
+    const base64 = dataUrl.split(',')[1];
+    this.textures.addBase64('avatar' + i, base64);
+  });
 
   statusDiv = document.getElementById('status');
   chatInput = document.getElementById('chatInput');
@@ -64,7 +82,7 @@ function create() {
     this.cameras.main.setBounds(0, 0, mundoAncho, mundoAlto);
 
     for (const [pid, p] of Object.entries(jugadoresIniciales)) {
-      addPlayerSprite(pid, p.x, p.y, p.color, p.name, pid === myId);
+      addPlayerSprite(pid, p.x, p.y, p.color, p.name, p.avatar, pid === myId);
     }
 
     if (sprites[myId]) {
@@ -126,7 +144,7 @@ function conectarYUnirse(nombre) {
   socket = io();
 
   socket.on('connect', () => {
-    socket.emit('setName', { name: nombre });
+    socket.emit('setName', { name: nombre, avatar: avatarSeleccionado });
   });
 
   socket.on('init', ({ id, players, me, mapa }) => {
@@ -153,8 +171,8 @@ function conectarYUnirse(nombre) {
     joinBtn.textContent = 'Entrar a la oficina';
   });
 
-  socket.on('playerJoined', ({ id, x, y, color, name }) => {
-    addPlayerSprite(id, x, y, color, name, false);
+  socket.on('playerJoined', ({ id, x, y, color, name, avatar }) => {
+    addPlayerSprite(id, x, y, color, name, avatar, false);
   });
 
   socket.on('playerMoved', ({ id, x, y }) => {
@@ -179,14 +197,17 @@ function conectarYUnirse(nombre) {
   });
 }
 
-function addPlayerSprite(id, x, y, color, name, esLocal) {
-  const sprite = scene.add.circle(x, y, 14, color);
-  sprite.setStrokeStyle(2, 0xffffff);
+function addPlayerSprite(id, x, y, color, name, avatar, esLocal) {
+  const avatarIndex = (typeof avatar === 'number') ? avatar : 0;
+  const avatarKey = 'avatar' + avatarIndex;
+
+  const sprite = scene.add.image(x, y, avatarKey);
+  sprite.setDisplaySize(32, 32);
   sprite.setDepth(1);
 
   if (esLocal) {
     scene.physics.add.existing(sprite);
-    sprite.body.setCircle(14, 0, 0);
+    sprite.body.setCircle(16, 0, 0);
     sprite.body.setCollideWorldBounds(true);
   }
 
@@ -238,7 +259,35 @@ function sendChat() {
   chatInput.value = '';
 }
 
+// Generar el grid de avatares en el overlay
+function generarAvatarGrid() {
+  const grid = document.getElementById('avatarGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  AVATAR_COLORS.forEach((color, i) => {
+    const div = document.createElement('div');
+    div.className = 'avatar-option' + (i === avatarSeleccionado ? ' selected' : '');
+    div.dataset.index = i;
+
+    const img = document.createElement('img');
+    img.src = avatarDataUrl(color);
+    img.alt = 'Avatar ' + (i + 1);
+    div.appendChild(img);
+
+    div.addEventListener('click', () => {
+      avatarSeleccionado = i;
+      document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+    });
+
+    grid.appendChild(div);
+  });
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  generarAvatarGrid();
+
   const joinBtn = document.getElementById('joinBtn');
   const playerName = document.getElementById('playerName');
   const joinError = document.getElementById('joinError');

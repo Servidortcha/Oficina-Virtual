@@ -66,6 +66,7 @@ io.on('connection', (socket) => {
 
   socket.on('setName', (data) => {
     const name = data && data.name ? data.name.trim() : `Jugador ${playerCount + 1}`;
+    const avatar = (data && typeof data.avatar === 'number') ? data.avatar : 0;
     const color = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0');
     const pos = posicionesIniciales[playerCount] || { x: 500, y: 350 };
 
@@ -73,7 +74,8 @@ io.on('connection', (socket) => {
       x: pos.x,
       y: pos.y,
       color,
-      name
+      name,
+      avatar
     };
 
     socket.emit('init', { id: socket.id, players, me: socket.id, mapa });
